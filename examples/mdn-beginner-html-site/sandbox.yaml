@@ -1,0 +1,44 @@
+# A manifest for a repo that has never heard of this system.
+#
+# mdn/beginner-html-site is a plain static site: no sandbox.yaml, no provisioner,
+# no factory, no knowledge that any of this exists. Mounting it is the acceptance
+# test for the whole multi-repo effort — every coupling still hiding in the six
+# phases surfaces here, because nothing about this target can paper over one.
+#
+#   SBX_MANIFEST=examples/mdn-beginner-html-site sbx mount foreign-static
+#
+# Note what is NOT here: no provision block (the host pushes the base
+# provisioner, and the image's python3 is all this needs), no health block (the
+# only claim worth making about a static site is the builtin one — that the
+# clone is intact), no kickoff (there is no factory in here to kick off), and no
+# artifacts (nothing runs, so there is nothing to pull home but the default
+# run.log). All four are optional; the mount gates on git integrity and serves
+# the site.
+#
+# Two couplings this manifest surfaced, both since fixed: `kickoff.default` used
+# to be required, so a repo with no work had to invent `echo {prompt}`; and
+# `script:` paths were checked against the HOST checkout, which rejected paths
+# that are perfectly valid inside the target clone.
+
+version: 1
+
+# 22 chars, leaving room for -<task>-<date>-<6 hex> inside a 63-char DNS label.
+name: mdn-beginner-html
+
+repo: https://github.com/mdn/beginner-html-site.git
+
+# No inference credential. Before the provider interface existed this mount
+# minted a $50 OpenRouter key, spent $0 on it, and revoked it at teardown — for
+# a static site that cannot call a model. `null` is what makes sbx useful to
+# someone who only wants disposable VMs.
+credential:
+  provider: none        # `none`, never `null` — YAML would read that as empty
+
+# python3 ships in the exeuntu image, so there is nothing to install and nothing
+# to build. 8080 is inside the 3000-9999 range the proxy forwards.
+services:
+  site:
+    dir: .
+    cmd: python3 -m http.server 8080
+    port: 8080
+    public: true

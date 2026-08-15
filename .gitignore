@@ -1,0 +1,7 @@
+# sbx keeps NO state in its own checkout — run records, keys, bundles and
+# artifacts all live in $SBX_STATE_DIR (default ~/.local/state/sbx/runs), which
+# is the whole point of the store being per machine rather than per repo.
+.DS_Store
+__pycache__/
+*.pyc
+.env
